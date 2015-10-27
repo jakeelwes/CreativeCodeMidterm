@@ -142,13 +142,20 @@ ofPoint ofApp::noiseField(ofPoint position) {
 void ofApp::guiSetup(){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     
+    gui->addLabel("Particle Activity Settings");
     gui->addSlider("Sound React Alpha", 50, 800);
     gui->addSlider("Sound Attract", -10, 16);
-    gui->addSlider("max Attract Force", 0, 0.2);
-    gui->addSlider("Brightness", 60, 255);
+    gui->addSlider("Attraction Force", 0, 0.5);
     gui->addButton("Reset Velocity");
+    
+    gui->addLabel("Attractor Movement Settings");
+    gui->addSlider("Attractor Jitter", 0, 15);
+    gui->addSlider("Attractor Speed", 0, 1.9);
+    
     gui->addButton("Play Sound");
     gui->addButton("Stop Sound");
+    gui->addSlider("Brightness", 60, 255);
+
     gui->onSliderEvent(this, &ofApp::onSliderEvent);
     gui->onButtonEvent(this, &ofApp::onButtonEvent);
     gui->setOpacity(0.2);
@@ -159,11 +166,13 @@ void ofApp::guiSetup(){
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e){
     if (e.target->is("Sound React Alpha")) soundReactivityAlpha = e.target->getValue();
     if (e.target->is("Sound Attract")) soundReactivityAttract = e.target->getValue();
-    if (e.target->is("max Attract Force"))
+    if (e.target->is("Attraction Force"))
         for(std::size_t i = 0; i < numNodes; i++){
             particles[i].maxForce = e.target->getValue();
         }
     if (e.target->is("Brightness")) bgBrightness = e.target->getValue();
+    if (e.target->is("Attractor Jitter")) jitter = e.target->getValue();
+    if (e.target->is("Attractor Speed")) speedLim = 2-(e.target->getValue());
     
 }
 

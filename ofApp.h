@@ -47,8 +47,7 @@ public:
     float soundReactivityAlpha;
     float soundReactivityAttract;
     float bgBrightness;
-    //        float attractorCenterx;
-    //        float attractorCentery;
+
     
     
     // SOUND
