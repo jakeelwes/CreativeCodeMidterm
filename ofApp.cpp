@@ -97,7 +97,16 @@ void ofApp::draw(){
     {
         
         // seeking force (to center), attraction power based on sound input
-        particles[i].seek(ofPoint(attractorCenter.x,attractorCenter.y,cageSize/2));
+        
+        if (movingCenter == false) {
+            cx = cageSize/2;
+            cy = cageSize/2;
+        } else if (movingCenter == true) {
+            cx = attractorCenter.x;
+            cy = attractorCenter.y;
+        }
+        
+        particles[i].seek(ofPoint(cx,cy,cageSize/2));
         particles[i].power = scaledVol * soundReactivityAttract;
         
         
@@ -127,6 +136,28 @@ void ofApp::draw(){
     ofPopMatrix();
 }
 
+void ofApp::keyPressed(int key)
+{
+    if (key == 'f') toggleFullscreen();
+    if (key == 'h') gui->setVisible(guiVis = !guiVis);
+}
+
+void ofApp::toggleFullscreen()
+{
+    mFullscreen = !mFullscreen;
+    refreshWindow();
+}
+
+void ofApp::refreshWindow()
+{
+    ofSetFullscreen(mFullscreen);
+    if (!mFullscreen) {
+        ofSetWindowShape(1000, 800);
+        ofSetWindowPosition(0, 0);
+        //ofSetWindowPosition((ofGetScreenWidth()/2)-(1920/2), 0);
+    }
+}
+
 // ---------------- NOISE FIELD ----------------
 
 ofPoint ofApp::noiseField(ofPoint position) {
@@ -147,19 +178,30 @@ void ofApp::guiSetup(){
     gui->addSlider("Sound Attract", -10, 16);
     gui->addSlider("Attraction Force", 0, 0.5);
     gui->addButton("Reset Velocity");
+    gui->addBreak();
     
-    gui->addLabel("Attractor Movement Settings");
-    gui->addSlider("Attractor Jitter", 0, 15);
-    gui->addSlider("Attractor Speed", 0, 1.9);
+    gui->addToggle("Moving Attraction Center", false);
+    
+    AMSFolder = gui->addFolder("Attractor Movement Settings", ofColor::white);
+    AMSFolder->addLabel("Attractor Movement Settings");
+    AMSFolder->addSlider("Attractor Jitter", 0, 15);
+    AMSFolder->addSlider("Attractor Speed", 0, 1.9);
+    gui->addBreak();
+    AMSFolder->setVisible(false);
+    
     
     gui->addButton("Play Sound");
     gui->addButton("Stop Sound");
     gui->addSlider("Brightness", 60, 255);
+    gui->addBreak();
+
+    gui->addLabel("Press 'f' for fullscreen, 'h' to hide GUI");
+
 
     gui->onSliderEvent(this, &ofApp::onSliderEvent);
     gui->onButtonEvent(this, &ofApp::onButtonEvent);
     gui->setOpacity(0.2);
-    gui->addHeader(":: drag to reposition ::");
+    gui->addHeader("drag to reposition");
     gui->addFooter();
 }
 
@@ -183,6 +225,13 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
         }
     if (e.target->is("Play Sound")) soundPlayer(), soundP = true;
     if (e.target->is("Stop Sound")) bach.stop(), soundP = false;
+    
+    if (e.target->is("Moving Attraction Center")) movingCenterToggle();
+}
+
+void ofApp::movingCenterToggle(){
+    movingCenter = !movingCenter;
+    AMSFolder->setVisible(movingCenter);
 }
 
 // ---------------- SOUND ----------------
