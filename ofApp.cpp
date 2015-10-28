@@ -6,6 +6,8 @@ void ofApp::setup(){
     
     numNodes = 2000;
     
+    worldSize = 0;
+    
     soundReactivityAlpha = 100;
     soundReactivityAttract = 4;
     bgBrightness = 60;
@@ -89,7 +91,7 @@ void ofApp::draw(){
     //    count = (count + 1) % 360;
     //    ofRotate(count, 0, 1, 0);
     
-    ofTranslate(ofGetWidth()/2-cageSize/2,ofGetHeight()/2-cageSize/2, -cageSize);
+    ofTranslate(ofGetWidth()/2-cageSize/2,ofGetHeight()/2-cageSize/2, -cageSize + worldSize);
     
     float minimumDist = scaledVol * soundReactivityAlpha;
     
@@ -98,12 +100,23 @@ void ofApp::draw(){
         
         // seeking force (to center), attraction power based on sound input
         
-        if (movingCenter == false) {
+        if (movingCenter == false) { // attract to center
             cx = cageSize/2;
             cy = cageSize/2;
-        } else if (movingCenter == true) {
+        } else if (movingCenter == true) { // use noise field
             cx = attractorCenter.x;
             cy = attractorCenter.y;
+            
+            if (showAttractor) { // draw attractor option
+                float col;
+                if (bgBrightness < 150){
+                    col = 255;
+                } else {
+                    col = 0;
+                }
+                ofSetColor(col, 1);
+                ofDrawEllipse(cx, cy, 10, 10);
+            }
         }
         
         particles[i].seek(ofPoint(cx,cy,cageSize/2));
@@ -129,8 +142,6 @@ void ofApp::draw(){
             }
         }
     }
-    
-    
     
     
     ofPopMatrix();
@@ -186,12 +197,14 @@ void ofApp::guiSetup(){
     AMSFolder->addLabel("Attractor Movement Settings");
     AMSFolder->addSlider("Attractor Jitter", 0, 15);
     AMSFolder->addSlider("Attractor Speed", 0, 1.9);
+    AMSFolder->addToggle("Show Attractor", false);
     gui->addBreak();
     AMSFolder->setVisible(false);
     
     
     gui->addButton("Play Sound");
     gui->addButton("Stop Sound");
+    gui->addSlider("Size", 0, 600);
     gui->addSlider("Brightness", 60, 255);
     gui->addBreak();
 
@@ -213,6 +226,7 @@ void ofApp::onSliderEvent(ofxDatGuiSliderEvent e){
             particles[i].maxForce = e.target->getValue();
         }
     if (e.target->is("Brightness")) bgBrightness = e.target->getValue();
+    if (e.target->is("Size")) worldSize = e.target->getValue();
     if (e.target->is("Attractor Jitter")) jitter = e.target->getValue();
     if (e.target->is("Attractor Speed")) speedLim = 2-(e.target->getValue());
     
@@ -227,11 +241,16 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
     if (e.target->is("Stop Sound")) bach.stop(), soundP = false;
     
     if (e.target->is("Moving Attraction Center")) movingCenterToggle();
+    
+    if (e.target->is("Show Attractor")) showAttractorToggle();
 }
 
 void ofApp::movingCenterToggle(){
     movingCenter = !movingCenter;
     AMSFolder->setVisible(movingCenter);
+}
+void ofApp::showAttractorToggle(){
+    showAttractor = !showAttractor;
 }
 
 // ---------------- SOUND ----------------

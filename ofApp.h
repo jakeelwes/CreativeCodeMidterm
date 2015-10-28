@@ -47,16 +47,19 @@ public:
     //        void on2dPadEvent(ofxDatGui2dPadEvent e); // using co-ordinates to move center before noise field
     
     void movingCenterToggle();
+    void showAttractorToggle();
     
     ofxDatGui* gui;
     ofxDatGuiFolder* AMSFolder;
     
     bool guiVis = true;
     bool movingCenter = false;
+    bool showAttractor = false;
     
     float soundReactivityAlpha;
     float soundReactivityAttract;
     float bgBrightness;
+    float worldSize;
 
     
     
